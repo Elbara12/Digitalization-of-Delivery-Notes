@@ -1,0 +1,12 @@
+services:
+  database:
+    container_name: mysql_db
+    image: mysql
+    restart: always
+    environment:
+      - MYSQL_DATABASE=dev
+      - MYSQL_USER=dev
+      - MYSQL_PASSWORD=dev
+      - MYSQL_ROOT_PASSWORD=dev
+    ports:
+      - "3306:3306"
