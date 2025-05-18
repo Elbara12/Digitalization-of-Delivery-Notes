@@ -19,9 +19,11 @@ async function configureProjectRouter() {
      * @swagger
      * /api/project:
      *   post:
+     *     tags:
+     *       - Project
      *     summary: Create a new project
-     *     tags: [Project]
-     *     security: [bearerAuth: []]
+     *     security:
+     *       - bearerAuth: []
      *     requestBody:
      *       required: true
      *       content:
@@ -31,15 +33,51 @@ async function configureProjectRouter() {
      *             properties:
      *               name:
      *                 type: string
+     *                 example: "myProject"
      *               email:
      *                 type: string
+     *                 example: "email@gmail.com"
      *               address:
-     *                 type: object
+     *                 type: string
+     *                 example: "myAddress"
      *               clientId:
      *                 type: integer
+     *                 example: 1
      *     responses:
-     *       201:
-     *         description: Project created
+     *       "200":
+     *         description: Returns the created object
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 id:
+     *                   type: integer
+     *                   example: 1
+     *                 name:
+     *                   type: string
+     *                   example: "myProject"
+     *                 email:
+     *                   type: string
+     *                   example: "email@gmail.com"
+     *                 address:
+     *                   type: string
+     *                   example: "myAddress"
+     *                 userId:
+     *                   type: integer
+     *                   example: 1
+     *                 clientId:
+     *                   type: integer
+     *                   example: 1
+     *                 archived:
+     *                   type: boolean
+     *                   example: false
+     *       "401":
+     *         $ref: '#/components/responses/InvalidJWTError'
+     *       "400":
+     *         $ref: '#/components/responses/ProjectAlreadyExistsError'
+     *       "500":
+     *         $ref: '#/components/responses/InvalidDatabaseError'
      */
     router.post('/', authenticator, handleController(projectController.registration.bind(projectController)));
 
@@ -47,12 +85,46 @@ async function configureProjectRouter() {
      * @swagger
      * /api/project:
      *   get:
-     *     summary: List all projects
-     *     tags: [Project]
-     *     security: [bearerAuth: []]
+     *     tags:
+     *       - Project
+     *     summary: Get all projects from a user
+     *     security:
+     *       - bearerAuth: []
      *     responses:
-     *       200:
-     *         description: List of projects
+     *       "200":
+     *         description: Returns all projects
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: array
+     *               items:
+     *                 type: object
+     *                 properties:
+     *                   id:
+     *                     type: integer
+     *                     example: 1
+     *                   name:
+     *                     type: string
+     *                     example: "myProject"
+     *                   email:
+     *                     type: string
+     *                     example: "email@gmail.com"
+     *                   address:
+     *                     type: string
+     *                     example: "myAddress"
+     *                   archived:
+     *                     type: boolean
+     *                     example: false
+     *                   user_id:
+     *                     type: integer
+     *                     example: 1
+     *                   client_id:
+     *                     type: integer
+     *                     example: 1
+     *       "401":
+     *         $ref: '#/components/responses/InvalidJWTError'
+     *       "500":
+     *         $ref: '#/components/responses/InvalidDatabaseError'
      */
     router.get('/', authenticator, handleController(projectController.getProjects.bind(projectController)));
 
@@ -60,12 +132,49 @@ async function configureProjectRouter() {
      * @swagger
      * /api/project/archived:
      *   get:
-     *     summary: List archived projects
-     *     tags: [Project]
-     *     security: [bearerAuth: []]
+     *     summary: Get archived project
+     *     tags:
+     *       - Project
+     *     security:
+     *       - bearerAuth: []
      *     responses:
-     *       200:
-     *         description: Archived projects list
+     *       "200":
+     *         description: Returns all projects archived from a user
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: array
+     *               items:
+     *                 type: object
+     *                 properties:
+     *                   id:
+     *                     type: integer
+     *                     example: 1
+     *                   name:
+     *                     type: string
+     *                     example: "myClient"
+     *                   CIF:
+     *                     type: string
+     *                     example: "A12345678"
+     *                   address:
+     *                     type: string
+     *                     example: "myAddress"
+     *                   user_id:
+     *                     type: integer
+     *                     example: 1
+     *                   client_id:
+     *                     type: integer
+     *                     example: 1
+     *                   archived:
+     *                     type: boolean
+     *                     example: true
+     *                   message:
+     *                     type: string
+     *                     example: "Archived projects retrieved successfully"
+     *       "401":
+     *         $ref: '#/components/responses/InvalidJWTError'
+     *       "500":
+     *         $ref: '#/components/responses/InvalidDatabaseError'
      */
     router.get('/archived', authenticator, handleController(projectController.getArchived.bind(projectController)));
 
@@ -73,18 +182,70 @@ async function configureProjectRouter() {
      * @swagger
      * /api/project/{projectId}:
      *   put:
+     *     tags:
+     *       - Project
      *     summary: Update a project
-     *     tags: [Project]
-     *     security: [bearerAuth: []]
+     *     security:
+     *       - bearerAuth: []
      *     parameters:
-     *       - in: path
-     *         name: projectId
+     *       - name: projectId
+     *         in: path
      *         required: true
      *         schema:
      *           type: integer
+     *         description: ID of the project to update
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             properties:
+     *               name:
+     *                 type: string
+     *                 example: "myProject"
+     *               email:
+     *                 type: string
+     *                 example: "email@gmail.com"
+     *               address:
+     *                 type: string
+     *                 example: "myAddress"
+     *               client_id:
+     *                 type: integer
+     *                 example: 1
      *     responses:
-     *       200:
-     *         description: Project updated
+     *       "200":
+     *         description: Returns the updated object
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 id:
+     *                   type: integer
+     *                   example: 1
+     *                 name:
+     *                   type: string
+     *                   example: "myProject"
+     *                 email:
+     *                   type: string
+     *                   example: "email@gmail.com"
+     *                 address:
+     *                   type: string
+     *                   example: "myAddress"
+     *                 archived:
+     *                   type: boolean
+     *                   example: false
+     *                 user_id:
+     *                   type: integer
+     *                   example: 1
+     *                 client_id:
+     *                   type: integer
+     *                   example: 1
+     *       "401":
+     *         $ref: '#/components/responses/InvalidJWTError'
+     *       "500":
+     *         $ref: '#/components/responses/InvalidDatabaseError'
      */
     router.put('/:projectId', authenticator, handleController(projectController.update.bind(projectController)));
 
@@ -92,18 +253,70 @@ async function configureProjectRouter() {
      * @swagger
      * /api/project/{projectId}:
      *   patch:
-     *     summary: Partially update a project
-     *     tags: [Project]
-     *     security: [bearerAuth: []]
+     *     tags:
+     *       - Project
+     *     summary: Update a project
+     *     security:
+     *       - bearerAuth: []
      *     parameters:
-     *       - in: path
-     *         name: projectId
+     *       - name: projectId
+     *         in: path
      *         required: true
      *         schema:
      *           type: integer
+     *         description: ID of the project to update
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             properties:
+     *               name:
+     *                 type: string
+     *                 example: "myProject"
+     *               email:
+     *                 type: string
+     *                 example: "email@gmail.com"
+     *               address:
+     *                 type: string
+     *                 example: "myAddress"
+     *               client_id:
+     *                 type: integer
+     *                 example: 1
      *     responses:
-     *       200:
-     *         description: Project partially updated
+     *       "200":
+     *         description: Returns the updated object
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 id:
+     *                   type: integer
+     *                   example: 1
+     *                 name:
+     *                   type: string
+     *                   example: "myProject"
+     *                 email:
+     *                   type: string
+     *                   example: "email@gmail.com"
+     *                 address:
+     *                   type: string
+     *                   example: "myAddress"
+     *                 archived:
+     *                   type: boolean
+     *                   example: false
+     *                 user_id:
+     *                   type: integer
+     *                   example: 1
+     *                 client_id:
+     *                   type: integer
+     *                   example: 1
+     *       "401":
+     *         $ref: '#/components/responses/InvalidJWTError'
+     *       "500":
+     *         $ref: '#/components/responses/InvalidDatabaseError'
      */
     router.patch('/:projectId', authenticator, handleController(projectController.update.bind(projectController)));
 
@@ -111,18 +324,53 @@ async function configureProjectRouter() {
      * @swagger
      * /api/project/{projectId}:
      *   get:
+     *     tags:
+     *       - Project
      *     summary: Get a project by ID
-     *     tags: [Project]
-     *     security: [bearerAuth: []]
+     *     security:
+     *       - bearerAuth: []
      *     parameters:
-     *       - in: path
-     *         name: projectId
+     *       - name: projectId
+     *         in: query
      *         required: true
      *         schema:
      *           type: integer
+     *         description: ID of the project
      *     responses:
-     *       200:
-     *         description: Project data
+     *       "200":
+     *         description: Returns the project object
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 id:
+     *                   type: integer
+     *                   example: 1
+     *                 name:
+     *                   type: string
+     *                   example: "myProject"
+     *                 email:
+     *                   type: string
+     *                   example: "email@gmail.com"
+     *                 address:
+     *                   type: string
+     *                   example: "myAddress"
+     *                 archived:
+     *                   type: boolean
+     *                   example: false
+     *                 user_id:
+     *                   type: integer
+     *                   example: 1
+     *                 client_id:
+     *                   type: integer
+     *                   example: 1
+     *       "401":
+     *         $ref: '#/components/responses/InvalidJWTError'
+     *       "404":
+     *         $ref: '#/components/responses/ProjectNotFoundError'
+     *       "500":
+     *         $ref: '#/components/responses/InvalidDatabaseError'
      */
     router.get('/:projectId', authenticator, handleController(projectController.getProjectById.bind(projectController)));
 
@@ -130,18 +378,41 @@ async function configureProjectRouter() {
      * @swagger
      * /api/project/delete/{projectId}:
      *   delete:
-     *     summary: Delete a project
-     *     tags: [Project]
-     *     security: [bearerAuth: []]
+     *     tags:
+     *       - Project
+     *     summary: Delete a project (soft or hard)
+     *     security:
+     *       - bearerAuth: []
      *     parameters:
-     *       - in: path
-     *         name: projectId
+     *       - name: projectId
+     *         in: path
      *         required: true
      *         schema:
      *           type: integer
+     *         description: ID of the project to delete
+     *       - name: soft
+     *         in: query
+     *         required: true
+     *         schema:
+     *           type: boolean
+     *         description: Perform a soft delete if true; otherwise, hard delete.
      *     responses:
-     *       200:
-     *         description: Project deleted
+     *       "200":
+     *         description: Deletes the project
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 message:
+     *                   type: string
+     *                   example: "Project deleted"
+     *       "401":
+     *         $ref: '#/components/responses/InvalidJWTError'
+     *       "404":
+     *         $ref: '#/components/responses/ProjectNotFoundError'
+     *       "500":
+     *         $ref: '#/components/responses/InvalidDatabaseError'
      */
     router.delete('/delete/:projectId', authenticator, handleController(projectController.delete.bind(projectController)));
 
@@ -149,18 +420,35 @@ async function configureProjectRouter() {
      * @swagger
      * /api/project/archived/restore/{projectId}:
      *   get:
-     *     summary: Restore an archived project
-     *     tags: [Project]
-     *     security: [bearerAuth: []]
+     *     tags:
+     *       - Project
+     *     summary: Restore a soft-deleted project
+     *     security:
+     *       - bearerAuth: []
      *     parameters:
-     *       - in: path
-     *         name: projectId
+     *       - name: projectId
+     *         in: path
      *         required: true
      *         schema:
      *           type: integer
+     *         description: ID of the project to restore
      *     responses:
-     *       200:
-     *         description: Project restored
+     *       "200":
+     *         description: Restores the project
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 message:
+     *                   type: string
+     *                   example: "Project restored successfully"
+     *       "401":
+     *         $ref: '#/components/responses/InvalidJWTError'
+     *       "404":
+     *         $ref: '#/components/responses/ProjectNotFoundError'
+     *       "500":
+     *         $ref: '#/components/responses/InvalidDatabaseError'
      */
     router.get('/archived/restore/:projectId', authenticator, handleController(projectController.restoreArchived.bind(projectController)));
 

@@ -80,14 +80,14 @@ class UserError extends Error {
   class InvalidRouteCompanyError extends UserError {
     constructor(message) {
       super(message || 'Invalid route, your account is a company');
-      this.statusCode = 400;
+      this.statusCode = 403;
     }
   }
 
   class InvalidRouteUserError extends UserError {
     constructor(message) {
       super(message || 'Invalid route, your account is a user');
-      this.statusCode = 400;
+      this.statusCode = 403;
     }
   }
 

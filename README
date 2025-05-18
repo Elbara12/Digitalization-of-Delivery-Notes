@@ -45,14 +45,14 @@ This is a Node.js REST API built with Express and MySQL for managing delivery no
 
     configure the file .env based on .env.example
 
-3. **SetUp Docker:**
+3. **Setup Docker:**
 
     ```bash
     cd Docker
     docker-compose up -d
     cd -
 
-4. **SetUp Yarn:**
+4. **Setup Yarn:**
 
     ```bash
     yarn install
@@ -65,12 +65,20 @@ This is a Node.js REST API built with Express and MySQL for managing delivery no
 
 6. **Swagger Documentation:**
 
-    Once running yarn, access documentation at:
+    Once the project is running using:
+
+    ```bash
+    yarn start
+    ```
+    you can access the Swagger documentation at:
+    
     http://localhost:3000/api-docs
+
+    From this interface, you can test all available endpoints directly, including authentication, creation, updates, and resource management. Make sure to provide a valid JWT token using the Authorize button where required.
 
 ---
 
-## Folfder Structur
+## Folder Structur
 
 .
 ├── Docker/

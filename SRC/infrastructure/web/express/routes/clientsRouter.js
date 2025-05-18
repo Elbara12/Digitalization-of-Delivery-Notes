@@ -20,8 +20,9 @@ async function configureClientRouter() {
      * @swagger
      * /api/client:
      *   post:
+     *     tags:
+     *       - Client
      *     summary: Create a new client
-     *     tags: [Client]
      *     security:
      *       - bearerAuth: []
      *     requestBody:
@@ -33,13 +34,45 @@ async function configureClientRouter() {
      *             properties:
      *               name:
      *                 type: string
-     *               cif:
+     *                 example: "myClient"
+     *               CIF:
      *                 type: string
+     *                 example: "A12345678"
      *               address:
-     *                 type: object
+     *                 type: string
+     *                 example: "myAddress"
      *     responses:
-     *       201:
-     *         description: Client created successfully
+     *       "200":
+     *         description: Returns the created object
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 id:
+     *                   type: integer
+     *                   example: 1
+     *                 name:
+     *                   type: string
+     *                   example: "myClient"
+     *                 CIF:
+     *                   type: string
+     *                   example: "A12345678"
+     *                 address:
+     *                   type: string
+     *                   example: "myAddress"
+     *                 user_id:
+     *                   type: integer
+     *                   example: 1
+     *                 archived:
+     *                   type: boolean
+     *                   example: false
+     *       "401":
+     *         $ref: '#/components/responses/InvalidJWTError'
+     *       "400":
+     *         $ref: '#/components/responses/CifAlreadyInUseError'
+     *       "500":
+     *         $ref: '#/components/responses/InvalidDatabaseError'
      */
     router.post('/', authenticator, handleController(clientController.registration.bind(clientController)));
 
@@ -47,27 +80,126 @@ async function configureClientRouter() {
      * @swagger
      * /api/client:
      *   put:
+     *     tags:
+     *       - Client
      *     summary: Update a client
-     *     tags: [Client]
      *     security:
      *       - bearerAuth: []
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             properties:
+     *               client_id:
+     *                 type: integer
+     *                 example: 1
+     *               name:
+     *                 type: string
+     *                 example: "myClient"
+     *               CIF:
+     *                 type: string
+     *                 example: "A12345678"
+     *               address:
+     *                 type: string
+     *                 example: "myAddress"
      *     responses:
-     *       200:
-     *         description: Client updated
+     *       "200":
+     *         description: Returns the updated object
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 id:
+     *                   type: integer
+     *                   example: 1
+     *                 name:
+     *                   type: string
+     *                   example: "myClient"
+     *                 CIF:
+     *                   type: string
+     *                   example: "A12345678"
+     *                 address:
+     *                   type: string
+     *                   example: "myAddress"
+     *                 user_id:
+     *                   type: integer
+     *                   example: 1
+     *                 archived:
+     *                   type: boolean
+     *                   example: false
+     *       "401":
+     *         $ref: '#/components/responses/InvalidJWTError'
+     *       "404":
+     *         $ref: '#/components/responses/ClientNotFoundError'
+     *       "500":
+     *         $ref: '#/components/responses/InvalidDatabaseError'
      */
+
     router.put('/', authenticator, handleController(clientController.update.bind(clientController)));
 
     /**
      * @swagger
      * /api/client:
      *   patch:
-     *     summary: Partially update a client
-     *     tags: [Client]
+     *     tags:
+     *       - Client
+     *     summary: Update a client
      *     security:
      *       - bearerAuth: []
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             properties:
+     *               client_id:
+     *                 type: integer
+     *                 example: 1
+     *               name:
+     *                 type: string
+     *                 example: "myClient"
+     *               CIF:
+     *                 type: string
+     *                 example: "A12345678"
+     *               address:
+     *                 type: string
+     *                 example: "myAddress"
      *     responses:
-     *       200:
-     *         description: Client updated partially
+     *       "200":
+     *         description: Returns the updated object
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 id:
+     *                   type: integer
+     *                   example: 1
+     *                 name:
+     *                   type: string
+     *                   example: "myClient"
+     *                 CIF:
+     *                   type: string
+     *                   example: "A12345678"
+     *                 address:
+     *                   type: string
+     *                   example: "myAddress"
+     *                 user_id:
+     *                   type: integer
+     *                   example: 1
+     *                 archived:
+     *                   type: boolean
+     *                   example: false
+     *       "401":
+     *         $ref: '#/components/responses/InvalidJWTError'
+     *       "404":
+     *         $ref: '#/components/responses/ClientNotFoundError'
+     *       "500":
+     *         $ref: '#/components/responses/InvalidDatabaseError'
      */
     router.patch('/', authenticator, handleController(clientController.update.bind(clientController)));
 
@@ -75,14 +207,45 @@ async function configureClientRouter() {
      * @swagger
      * /api/client:
      *   get:
-     *     summary: Get all clients
-     *     tags: [Client]
+     *     tags:
+     *       - Client
+     *     summary: Get all clients from a user
      *     security:
      *       - bearerAuth: []
      *     responses:
-     *       200:
-     *         description: List of clients
+     *       "200":
+     *         description: Returns all clients from a user
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: array
+     *               items:
+     *                 type: object
+     *                 properties:
+     *                   id:
+     *                     type: integer
+     *                     example: 1
+     *                   name:
+     *                     type: string
+     *                     example: "myClient"
+     *                   CIF:
+     *                     type: string
+     *                     example: "A12345678"
+     *                   address:
+     *                     type: string
+     *                     example: "myAddress"
+     *                   user_id:
+     *                     type: integer
+     *                     example: 1
+     *                   archived:
+     *                     type: boolean
+     *                     example: false
+     *       "401":
+     *         $ref: '#/components/responses/InvalidJWTError'
+     *       "500":
+     *         $ref: '#/components/responses/InvalidDatabaseError'
      */
+
     router.get('/', authenticator, handleController(clientController.getClient.bind(clientController)));
 
      /**
@@ -90,12 +253,42 @@ async function configureClientRouter() {
      * /api/client/archived:
      *   get:
      *     summary: Get archived clients
-     *     tags: [Client]
+     *     tags:
+     *       - Client
      *     security:
      *       - bearerAuth: []
      *     responses:
-     *       200:
-     *         description: List of archived clients
+     *       "200":
+     *         description: Returns all clients archived from a user
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: array
+     *               items:
+     *                 type: object
+     *                 properties:
+     *                   id:
+     *                     type: integer
+     *                     example: 1
+     *                   name:
+     *                     type: string
+     *                     example: "myClient"
+     *                   CIF:
+     *                     type: string
+     *                     example: "A12345678"
+     *                   address:
+     *                     type: string
+     *                     example: "myAddress"
+     *                   user_id:
+     *                     type: integer
+     *                     example: 1
+     *                   archived:
+     *                     type: boolean
+     *                     example: true
+     *       "401":
+     *         $ref: '#/components/responses/InvalidJWTError'
+     *       "500":
+     *         $ref: '#/components/responses/InvalidDatabaseError'
      */
     router.get('/archived', authenticator, handleController(clientController.getArchived.bind(clientController)));
 
@@ -103,41 +296,93 @@ async function configureClientRouter() {
      * @swagger
      * /api/client/{clientId}:
      *   get:
-     *     summary: Get client by ID
-     *     tags: [Client]
+     *     tags:
+     *       - Client
+     *     summary: Get a client by ID
      *     security:
      *       - bearerAuth: []
      *     parameters:
-     *       - in: path
-     *         name: clientId
+     *       - name: clientId
+     *         in: path
      *         required: true
      *         schema:
      *           type: integer
-     *         description: The ID of the client
+     *         description: ID of the client to retrieve
      *     responses:
-     *       200:
-     *         description: Client data
+     *       "200":
+     *         description: Returns the client object
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 id:
+     *                   type: integer
+     *                   example: 1
+     *                 name:
+     *                   type: string
+     *                   example: "myClient"
+     *                 CIF:
+     *                   type: string
+     *                   example: "A12345678"
+     *                 address:
+     *                   type: string
+     *                   example: "myAddress"
+     *                 user_id:
+     *                   type: integer
+     *                   example: 1
+     *                 archived:
+     *                   type: boolean
+     *                   example: false
+     *       "401":
+     *         $ref: '#/components/responses/InvalidJWTError'
+     *       "404":
+     *         $ref: '#/components/responses/ClientNotFoundError'
+     *       "500":
+     *         $ref: '#/components/responses/InvalidDatabaseError'
      */
+
     router.get('/:clientId', authenticator, handleController(clientController.getClientById.bind(clientController)));
 
     /**
      * @swagger
      * /api/client/delete/{clientId}:
      *   delete:
-     *     summary: Delete a client
-     *     tags: [Client]
+     *     tags:
+     *       - Client
+     *     summary: Delete a client (soft or hard)
      *     security:
      *       - bearerAuth: []
      *     parameters:
-     *       - in: path
-     *         name: clientId
+     *       - name: clientId
+     *         in: path
      *         required: true
      *         schema:
      *           type: integer
-     *         description: The ID of the client to delete
+     *         description: ID of the client to delete
+     *       - name: soft
+     *         in: query
+     *         required: true
+     *         schema:
+     *           type: boolean
+     *         description: Perform a soft delete if true; otherwise, perform a hard delete.
      *     responses:
-     *       200:
-     *         description: Client deleted
+     *       "200":
+     *         description: Soft delete a client
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 Message:
+     *                   type: string
+     *                   example: "Client deleted"
+     *       "401":
+     *         $ref: '#/components/responses/InvalidJWTError'
+     *       "404":
+     *         $ref: '#/components/responses/ClientNotFoundError'
+     *       "500":
+     *         $ref: '#/components/responses/InvalidDatabaseError'
      */
     router.delete('/delete/:clientId', authenticator, handleController(clientController.delete.bind(clientController)));
 
@@ -145,20 +390,37 @@ async function configureClientRouter() {
      * @swagger
      * /api/client/archived/restore/{clientId}:
      *   get:
-     *     summary: Restore an archived client
-     *     tags: [Client]
+     *     tags:
+     *       - Client
+     *     summary: Restore a soft-deleted client
      *     security:
      *       - bearerAuth: []
      *     parameters:
-     *       - in: path
-     *         name: clientId
+     *       - name: clientId
+     *         in: path
      *         required: true
      *         schema:
      *           type: integer
-     *         description: The ID of the client to restore
+     *         description: ID of the client to restore
      *     responses:
-     *       200:
-     *         description: Client restored
+     *       "200":
+     *         description: Restores a soft-deleted client
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 Message:
+     *                   type: string
+     *                   example: "Client restored successfully"
+     *       "400":
+     *         $ref: '#/components/responses/ClientNotArchivedError'
+     *       "401":
+     *         $ref: '#/components/responses/InvalidJWTError'
+     *       "404":
+     *         $ref: '#/components/responses/ClientNotFoundError'
+     *       "500":
+     *         $ref: '#/components/responses/InvalidDatabaseError'
      */
     router.get('/archived/restore/:clientId', authenticator, handleController(clientController.restoreArchived.bind(clientController)));
 

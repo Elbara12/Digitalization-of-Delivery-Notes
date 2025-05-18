@@ -21,27 +21,200 @@ async function configureNoteRouter() {
 
     /**
      * @swagger
-     * /api/deliverynote:
+     * /api/deliveryNote:
      *   post:
+     *     tags:
+     *       - DeliveryNote
      *     summary: Create a new delivery note
-     *     tags: [DeliveryNote]
-     *     security: [bearerAuth: []]
+     *     security:
+     *       - bearerAuth: []
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             properties:
+     *               clientId:
+     *                 type: string
+     *                 example: "23"
+     *               projectId:
+     *                 type: string
+     *                 example: "3"
+     *               entries:
+     *                 type: array
+     *                 items:
+     *                   type: object
+     *                   properties:
+     *                     person:
+     *                       type: string
+     *                       example: "person"
+     *                     type:
+     *                       type: string
+     *                       example: "material/hours"
+     *                     material:
+     *                       type: string
+     *                       example: "material"
+     *                     hours:
+     *                       type: integer
+     *                       example: 10
+     *                     quantity:
+     *                       type: integer
+     *                       example: 5
+     *                     description:
+     *                       type: string
+     *                       example: "description"
+     *                     workdate:
+     *                       type: string
+     *                       example: "2023-10-01"
      *     responses:
-     *       201:
-     *         description: Note created successfully
+     *       "200":
+     *         description: Returns the created delivery note
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 id:
+     *                   type: integer
+     *                   example: 1
+     *                 userId:
+     *                   type: integer
+     *                   example: 1
+     *                 clientId:
+     *                   type: string
+     *                   example: "23"
+     *                 projectId:
+     *                   type: string
+     *                   example: "3"
+     *                 signed:
+     *                   type: boolean
+     *                   example: false
+     *                 signatureUrl:
+     *                   type: string
+     *                   example: "https://example.com/signature.png"
+     *                 pdfUrl:
+     *                   type: string
+     *                   example: "https://example.com/deliverynote.pdf"
+     *                 entries:
+     *                   type: array
+     *                   items:
+     *                     type: object
+     *                     properties:
+     *                       id:
+     *                         type: integer
+     *                         example: 1
+     *                       deliveryNoteId:
+     *                         type: integer
+     *                         example: 1
+     *                       person:
+     *                         type: string
+     *                         example: "person"
+     *                       type:
+     *                         type: string
+     *                         example: "material/hours"
+     *                       material:
+     *                         type: string
+     *                         example: "material"
+     *                       hours:
+     *                         type: string
+     *                         example: "5"
+     *                       quantity:
+     *                         type: string
+     *                         example: "5"
+     *                       description:
+     *                         type: string
+     *                         example: "description"
+     *                       workdate:
+     *                         type: string
+     *                         example: "2023-10-01"
+     *       "400":
+     *         $ref: '#/components/responses/InvalidNoteFormatError'
+     *       "401":
+     *         $ref: '#/components/responses/InvalidJWTError'
+     *       "404":
+     *         $ref: '#/components/responses/NoteNotFoundError'
+     *       "500":
+     *         $ref: '#/components/responses/InvalidDatabaseError'
      */
     router.post('/', authenticator, handleController(noteController.create.bind(noteController)));
 
     /**
      * @swagger
-     * /api/deliverynote:
+     * /api/deliveryNote:
      *   get:
-     *     summary: Get all delivery notes for the logged-in user
-     *     tags: [DeliveryNote]
-     *     security: [bearerAuth: []]
+     *     tags:
+     *       - DeliveryNote
+     *     summary: Get all delivery notes from a user
+     *     security:
+     *       - bearerAuth: []
      *     responses:
-     *       200:
+     *       "200":
      *         description: List of delivery notes
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: array
+     *               items:
+     *                 type: object
+     *                 properties:
+     *                   id:
+     *                     type: integer
+     *                     example: 1
+     *                   userId:
+     *                     type: integer
+     *                     example: 1
+     *                   clientId:
+     *                     type: string
+     *                     example: "23"
+     *                   projectId:
+     *                     type: string
+     *                     example: "3"
+     *                   signed:
+     *                     type: boolean
+     *                     example: false
+     *                   signatureUrl:
+     *                     type: string
+     *                     example: "https://example.com/signature.png"
+     *                   pdfUrl:
+     *                     type: string
+     *                     example: "https://example.com/deliverynote.pdf"
+     *                   entries:
+     *                     type: array
+     *                     items:
+     *                       type: object
+     *                       properties:
+     *                         id:
+     *                           type: integer
+     *                           example: 1
+     *                         deliveryNoteId:
+     *                           type: integer
+     *                           example: 1
+     *                         person:
+     *                           type: string
+     *                           example: "person"
+     *                         type:
+     *                           type: string
+     *                           example: "material/hours"
+     *                         material:
+     *                           type: string
+     *                           example: "material"
+     *                         hours:
+     *                           type: string
+     *                           example: "5"
+     *                         quantity:
+     *                           type: string
+     *                           example: "5"
+     *                         description:
+     *                           type: string
+     *                           example: "description"
+     *                         workdate:
+     *                           type: string
+     *                           example: "2023-10-01"
+     *       "401":
+     *         $ref: '#/components/responses/InvalidJWTError'
+     *       "500":
+     *         $ref: '#/components/responses/InvalidDatabaseError'
      */
     router.get('/',authenticator, handleController(noteController.getAll.bind(noteController)));
 
@@ -49,59 +222,157 @@ async function configureNoteRouter() {
      * @swagger
      * /api/deliverynote/{noteId}:
      *   get:
-     *     summary: Get a specific delivery note by ID
-     *     tags: [DeliveryNote]
-     *     security: [bearerAuth: []]
+     *     tags:
+     *       - DeliveryNote
+     *     summary: Get a delivery note by ID
+     *     security:
+     *       - bearerAuth: []
      *     parameters:
-     *       - in: path
-     *         name: noteId
+     *       - name: noteId
+     *         in: path
+     *         required: true
      *         schema:
      *           type: integer
-     *         required: true
-     *         description: ID of the delivery note
      *     responses:
-     *       200:
-     *         description: Delivery note data
+     *       "200":
+     *         description: Returns a single delivery note
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 id:
+     *                   type: integer
+     *                   example: 1
+     *                 userId:
+     *                   type: integer
+     *                   example: 1
+     *                 clientId:
+     *                   type: string
+     *                   example: "23"
+     *                 projectId:
+     *                   type: string
+     *                   example: "3"
+     *                 signed:
+     *                   type: boolean
+     *                   example: false
+     *                 signatureUrl:
+     *                   type: string
+     *                   example: "https://example.com/signature.png"
+     *                 pdfUrl:
+     *                   type: string
+     *                   example: "https://example.com/deliverynote.pdf"
+     *                 entries:
+     *                   type: array
+     *                   items:
+     *                     type: object
+     *                     properties:
+     *                       id:
+     *                         type: integer
+     *                         example: 1
+     *                       deliveryNoteId:
+     *                         type: integer
+     *                         example: 1
+     *                       person:
+     *                         type: string
+     *                         example: "person"
+     *                       type:
+     *                         type: string
+     *                         example: "material/hours"
+     *                       material:
+     *                         type: string
+     *                         example: "material"
+     *                       hours:
+     *                         type: string
+     *                         example: "5"
+     *                       quantity:
+     *                         type: string
+     *                         example: "5"
+     *                       description:
+     *                         type: string
+     *                         example: "description"
+     *                       workdate:
+     *                         type: string
+     *                         example: "2023-10-01"
+     *       "401":
+     *         $ref: '#/components/responses/InvalidJWTError'
+     *       "404":
+     *         $ref: '#/components/responses/NoteNotFoundError'
+     *       "500":
+     *         $ref: '#/components/responses/InvalidDatabaseError'
      */
     router.get('/:noteId',authenticator, handleController(noteController.getNoteById.bind(noteController)));
 
     /**
      * @swagger
-     * /api/deliverynote/pdf/{noteId}:
+     * /api/deliveryNote/pdf/{noteId}:
      *   get:
-     *     summary: Generate and download a delivery note PDF
-     *     tags: [DeliveryNote]
-     *     security: [bearerAuth: []]
+     *     tags:
+     *       - DeliveryNote
+     *     summary: Generate a PDF for a delivery note
+     *     security:
+     *       - bearerAuth: []
      *     parameters:
-     *       - in: path
-     *         name: noteId
+     *       - name: noteId
+     *         in: path
+     *         required: true
      *         schema:
      *           type: integer
-     *         required: true
-     *         description: ID of the delivery note
      *     responses:
-     *       200:
-     *         description: PDF URL
+     *       "200":
+     *         description: PDF generated
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 url:
+     *                   type: string
+     *                   example: "https://example.com/deliverynote.pdf"
+     *       "401":
+     *         $ref: '#/components/responses/InvalidJWTError'
+     *       "404":
+     *         $ref: '#/components/responses/NoteNotFoundError'
+     *       "500":
+     *         $ref: '#/components/responses/InvalidDatabaseError'
      */
     router.get('/pdf/:noteId',authenticator, handleController(noteController.downloadPdf.bind(noteController)));
 
     /**
      * @swagger
-     * /api/deliverynote/sign/{noteId}:
+     * /api/deliveryNote/sign/{noteId}:
      *   patch:
-     *     summary: Sign a delivery note (upload signature)
-     *     tags: [DeliveryNote]
-     *     security: [bearerAuth: []]
+     *     tags:
+     *       - DeliveryNote
+     *     summary: Sign a delivery note
+     *     security:
+     *       - bearerAuth: []
      *     parameters:
-     *       - in: path
-     *         name: noteId
+     *       - name: noteId
+     *         in: path
+     *         required: true
      *         schema:
      *           type: integer
-     *         required: true
-     *         description: ID of the delivery note
      *     responses:
-     *       200:
-     *         description: Signature uploaded
+     *       "200":
+     *         description: Delivery note signed
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 message:
+     *                   type: string
+     *                   example: "Delivery note signed"
+     *                 Url:
+     *                   type: string
+     *                   example: "https://example.com/signature.png"
+     *       "401":
+     *         $ref: '#/components/responses/InvalidJWTError'
+     *       "404":
+     *         $ref: '#/components/responses/NoteNotFoundError'
+     *       "500":
+     *         $ref: '#/components/responses/InvalidDatabaseError'
      */
     router.patch("/sign/:noteId",authenticator,(req, res, next) => {
         upload.single("image")(req, res, function (err) {
@@ -117,21 +388,41 @@ async function configureNoteRouter() {
 
     /**
      * @swagger
-     * /api/deliverynote/delete/{noteId}:
+     * /api/deliveryNote/delete/{noteId}:
      *   delete:
-     *     summary: Delete a delivery note (if not signed)
-     *     tags: [DeliveryNote]
-     *     security: [bearerAuth: []]
+     *     tags:
+     *       - DeliveryNote
+     *     summary: Delete a delivery note (soft or hard)
+     *     security:
+     *       - bearerAuth: []
      *     parameters:
-     *       - in: path
-     *         name: noteId
+     *       - name: noteid
+     *         in: path
+     *         required: true
      *         schema:
      *           type: integer
+     *       - name: soft
+     *         in: query
      *         required: true
-     *         description: ID of the delivery note
+     *         schema:
+     *           type: boolean
      *     responses:
-     *       200:
+     *       "200":
      *         description: Delivery note deleted
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 message:
+     *                   type: string
+     *                   example: "Note 2 deleted successfully"
+     *       "401":
+     *         $ref: '#/components/responses/InvalidJWTError'
+     *       "404":
+     *         $ref: '#/components/responses/NoteNotFoundError'
+     *       "500":
+     *         $ref: '#/components/responses/InvalidDatabaseError'
      */
     router.delete('/delete/:noteId',authenticator, handleController(noteController.delete.bind(noteController)));
 
